@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Odin Workbench</title>
+<style>
+:root{--bg:#eef2f1;--panel:#fff;--ink:#17202a;--mute:#5b6770;--line:#cfd8d6;--acc:#0f766e;--acc2:#b45309;--ok:#15803d;--bad:#b91c1c;--code:#0e1a1f;--codefg:#d7f3ee}
+@media(prefers-color-scheme:dark){:root{--bg:#10181b;--panel:#172226;--ink:#e6efed;--mute:#9bb0ac;--line:#2a3b40;--acc:#2dd4bf;--acc2:#f5a524;--ok:#4ade80;--bad:#f87171;--code:#0a1215}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;margin:0 0 .4em;line-height:1.2}
+header{padding:20px 20px 0;max-width:960px;margin:auto}
+h1{font-size:2rem}
+.sub{color:var(--mute);margin:0 0 14px}
+nav{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{background:none;border:0;padding:10px 14px;font:inherit;color:var(--mute);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+nav button.on{color:var(--ink);border-color:var(--acc);font-weight:600}
+main{max-width:960px;margin:auto;padding:20px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer}
+@media(prefers-color-scheme:dark){.btn{color:#06201d}}
+.btn.alt{background:none;color:var(--ink);border:1px solid var(--line)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat b{display:block;font-size:1.5rem;font-family:Georgia,serif}.stat span{color:var(--mute);font-size:.9rem}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+.item{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:flex-start}
+.item:first-of-type{border-top:0}
+.item input{margin-top:5px;width:18px;height:18px;accent-color:var(--acc)}
+.item small{color:var(--mute);display:block}
+.proj{border-left:4px solid var(--acc2);padding-left:10px;background:color-mix(in srgb,var(--acc2) 7%,transparent)}
+.tag{color:var(--acc2);font-weight:600;font-size:.85rem}
+a{color:var(--acc)}
+textarea,input[type=text],input[type=number],select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px}
+textarea.code{background:var(--code);color:var(--codefg);font:14px/1.5 ui-monospace,Consolas,monospace;min-height:150px;tab-size:2}
+.res{margin-top:10px;font:14px ui-monospace,Consolas,monospace}.res .p{color:var(--ok)}.res .f{color:var(--bad)}
+.card{min-height:130px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.2rem;font-family:Georgia,serif;padding:20px;border:2px dashed var(--line);border-radius:8px}
+.chat{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.msg{padding:10px 12px;border-radius:8px;white-space:pre-wrap;max-width:90%}
+.msg.u{background:var(--acc);color:#fff;align-self:flex-end}
+@media(prefers-color-scheme:dark){.msg.u{color:#06201d}}
+.msg.a{background:var(--bg);border:1px solid var(--line)}
+details{margin-top:8px}summary{cursor:pointer;color:var(--acc)}
+pre{background:var(--code);color:var(--codefg);padding:10px;border-radius:6px;overflow:auto;font-size:.85rem}
+label{display:block;font-size:.9rem;color:var(--mute);margin:8px 0 3px}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .4s}}
+</style></head><body>
+<header><h1>Odin Workbench</h1><p class="sub">A study companion for The Odin Project's Full Stack JavaScript path. Your progress stays on this computer.</p>
+<nav id="nav"></nav></header><main id="main"></main>
+<script>
+const PATH="https://www.theodinproject.com/paths/full-stack-javascript";
+// [id,title,hours,kind,note] kind: l=lesson, p=milestone project
+const STAGES=[
+{n:"Stage 1: Foundations",items:[
+["f1","Intro to web dev, installations, VS Code setup",4,"l","Set up Ubuntu/WSL or macOS tools exactly as Odin's Installations lesson says."],
+["f2","Command line and Git basics",6,"l","Practise cd, ls, mkdir, git add/commit/push until it feels dull."],
+["f3","HTML basics",5,"l",""],
+["f4","CSS basics",6,"l",""],
+["f5","Flexbox",4,"l",""],
+["f6","Project: Recipes",5,"p","Stretch: add a photo, a table of ingredients and a link between recipe pages."],
+["f7","Project: Landing Page",8,"p","Stretch: rebuild a real site's header and hero from a screenshot."],
+["f8","JavaScript basics (variables, functions, loops, arrays, objects)",15,"l","Use the Drills tab alongside this."],
+["f9","Project: Rock Paper Scissors (console)",6,"p","Stretch: add best-of-five scoring."],
+["f10","Project: Etch-a-Sketch (DOM)",8,"p","Stretch: add a colour picker and a clear button."],
+["f11","Project: Calculator",10,"p","Stretch: add keyboard support and a backspace key."]]},
+{n:"Stage 2: Intermediate web and JavaScript",items:[
+["g1","Forms, Grid, responsive design",20,"l",""],
+["g2","Project: Sign-up Form",8,"p","Stretch: validate with JavaScript and show clear error messages."],
+["g3","JavaScript: objects, factories, modules, ES6",25,"l",""],
+["g4","Testing with Jest",10,"l","Write tests for your own drill solutions."],
+["g5","Project: Library / To-do List",20,"p","Stretch: save to localStorage and add due dates."],
+["g6","Async JavaScript and APIs",15,"l",""],
+["g7","Project: Weather App",20,"p","Stretch: add a 5-day forecast and unit toggle."]]},
+{n:"Stage 3: Back end and getting hired",items:[
+["h1","Node.js and Express",25,"l",""],
+["h2","Databases (SQL and MongoDB)",25,"l",""],
+["h3","Authentication and security",15,"l",""],
+["h4","Project: Members Only",20,"p","Stretch: add roles and password reset."],
+["h5","Deployment",8,"l",""],
+["h6","Capstone: a full-stack app of your own idea",60,"p","Plan it, build it, deploy it, write a README."]]}];
+const ALL=STAGES.flatMap(s=>s.items);
+const DRILLS=[
+{id:"d1",t:"Sum an array",fn:"sum",h:"Start with let total = 0, then loop through the array adding each item.",c:"function sum(arr){\n  // return the total of all numbers\n}",tests:[[[[1,2,3]],6],[[[]],0],[[[-1,1,5]],5]]},
+{id:"d2",t:"Palindrome check",fn:"isPalindrome",h:"Lowercase the string, reverse it with split, reverse, join and compare.",c:"function isPalindrome(s){\n  // true if s reads the same backwards\n}",tests:[[["level"],true],[["Noon"],true],[["hello"],false]]},
+{id:"d3",t:"FizzBuzz",fn:"fizzBuzz",h:"Check divisibility by 15 first, then 3, then 5. Use %.",c:"function fizzBuzz(n){\n  // return array 1..n: 'Fizz' for 3s, 'Buzz' for 5s, 'FizzBuzz' for both\n}",tests:[[[5],[1,2,"Fizz",4,"Buzz"]],[[15],[1,2,"Fizz",4,"Buzz","Fizz",7,8,"Fizz","Buzz",11,"Fizz",13,14,"FizzBuzz"]]]},
+{id:"d4",t:"Square the evens",fn:"squareEvens",h:"Chain filter then map.",c:"function squareEvens(arr){\n  // return squares of only the even numbers\n}",tests:[[[[1,2,3,4]],[4,16]],[[[1,3]],[]]]},
+{id:"d5",t:"Count word lengths",fn:"longest",h:"Split on spaces, then track the longest word as you loop.",c:"function longest(sentence){\n  // return the longest word in the sentence\n}",tests:[[["I love coding"],"coding"],[["a bb ccc"],"ccc"]]},
+{id:"d6",t:"Closure counter",fn:"makeCounter",h:"Declare a variable inside makeCounter and return a function that increments it.",c:"function makeCounter(){\n  // return a function that returns 1, then 2, then 3...\n}",custom:f=>{const a=f(),b=f();return[[[],a()===1&&a()===2&&b()===1,"each counter keeps its own count"]]}}];
+DRILLS.push(
+{id:"d7",t:"Count vowels",fn:"countVowels",h:"Loop over the characters and check each against 'aeiou'.",c:"function countVowels(s){\n  // number of vowels in s (case-insensitive)\n}",tests:[[["Hello"],2],[["rhythm"],0],[["AEIOU"],5]]},
+{id:"d8",t:"Remove duplicates",fn:"uniq",h:"A Set stores each value once. Try [...new Set(arr)].",c:"function uniq(arr){\n  // return arr without repeated values, order kept\n}",tests:[[[[1,2,2,3,1]],[1,2,3]],[[[]],[]]]},
+{id:"d9",t:"Count occurrences",fn:"countBy",h:"Use an object; if the key is missing start at 0, then add 1.",c:"function countBy(arr){\n  // return an object of how often each item appears\n}",tests:[[[["a","b","a"]],{a:2,b:1}],[[[]],{}]]},
+{id:"d10",t:"Title case",fn:"titleCase",h:"Split into words, capitalise the first letter of each, join again.",c:"function titleCase(s){\n  // 'hello big world' -> 'Hello Big World'\n}",tests:[[["hello big world"],"Hello Big World"],[["a"],"A"]]},
+{id:"d11",t:"DOM: fill a list",fn:"fillList",h:"For each item: createElement('li'), set textContent, then ul.appendChild.",c:"function fillList(ul, items){\n  // add one <li> per item to ul\n}",custom:f=>{const u=document.createElement("ul");f(u,["a","b"]);return[[0,u.children.length===2&&u.children[1].textContent==="b","creates one li per item with its text"]]}},
+{id:"d12",t:"DOM: toggle on click",fn:"makeToggle",h:"el.addEventListener('click', ...) and el.classList.toggle('active').",c:"function makeToggle(el){\n  // clicking el toggles the class 'active'\n}",custom:f=>{const b=document.createElement("button");f(b);b.click();const a=b.classList.contains("active");b.click();return[[0,a,"first click adds active"],[0,!b.classList.contains("active"),"second click removes it"]]}},
+{id:"d13",t:"DOM: build a grid (Etch-a-Sketch)",fn:"makeGrid",h:"Nested thinking: a loop that runs n*n times, each creating a div with className 'cell'.",c:"function makeGrid(container, n){\n  // add n*n divs with class 'cell' to container\n}",custom:f=>{const c=document.createElement("div");f(c,4);return[[0,c.querySelectorAll(".cell").length===16,"4x4 grid makes 16 cells"]]}}
+);
+const P=h=>{const d=document.createElement("div");d.innerHTML=h;return d};
+const CS=(css,sel,props)=>{const h=document.createElement("div");h.style.cssText="position:absolute;left:-9999px;top:0";h.innerHTML="<style>"+css+"</style><div class=\"box\"><p>hi</p><span>x</span></div>";document.body.appendChild(h);const c=getComputedStyle(h.querySelector(sel)),o={};props.forEach(k=>o[k]=c[k]);h.remove();return o};
+DRILLS.push(
+{id:"s1",t:"HTML: make a link",fn:"makeLink",h:"<a href=\"...\">text</a>, built with a template string using backticks.",c:"function makeLink(text, url){\n  // return an HTML string for a link\n}",custom:f=>{const a=P(f("Odin","https://x.com")).querySelector("a");return[[0,!!a&&a.getAttribute("href")==="https://x.com","an <a> tag with the right href"],[0,!!a&&a.textContent==="Odin","the link text is right"]]}},
+{id:"s2",t:"HTML: make a list",fn:"makeList",h:"Use <ul>, and map each item into an <li> before join('').",c:"function makeList(items){\n  // return an HTML <ul> with one <li> per item\n}",custom:f=>{const d=P(f(["a","b","c"])),l=d.querySelectorAll("ul>li");return[[0,l.length===3,"a ul with 3 li children"],[0,l.length===3&&l[2].textContent==="c","li text matches the items"]]}},
+{id:"s3",t:"HTML: accessible image",fn:"makeImage",h:"<img src=\"...\" alt=\"...\"> has no closing tag.",c:"function makeImage(src, alt){\n  // return an HTML <img> string with src and alt\n}",custom:f=>{const i=P(f("a.png","A cat")).querySelector("img");return[[0,!!i&&i.getAttribute("src")==="a.png","has the right src"],[0,!!i&&i.getAttribute("alt")==="A cat","has alt text"]]}},
+{id:"s4",t:"CSS: style a box",fn:"boxCss",h:"Write a rule for .box with width, padding and background-color.",c:"function boxCss(){\n  // return CSS making .box 200px wide, 10px padding, blue background\n  return `.box { }`;\n}",custom:f=>{const o=CS(f(),".box",["width","paddingTop","backgroundColor"]);return[[0,o.width==="200px","width is 200px"],[0,o.paddingTop==="10px","padding is 10px"],[0,o.backgroundColor==="rgb(0, 0, 255)","background is blue"]]}},
+{id:"s5",t:"CSS: descendant selector",fn:"redParagraphs",h:"Separate the selector with a space: .box p { }",c:"function redParagraphs(){\n  // return CSS making every p inside .box red\n  return ``;\n}",custom:f=>{const c=f(),a=CS(c,"p",["color"]),b=CS(c,"span",["color"]);return[[0,a.color==="rgb(255, 0, 0)","p inside .box is red"],[0,b.color!=="rgb(255, 0, 0)","the span is left alone"]]}},
+{id:"s6",t:"Flexbox: centre everything",fn:"centerFlex",h:"Three properties on .box: display, justify-content, align-items.",c:"function centerFlex(){\n  // return CSS making .box a flex container that centres its children both ways\n  return ``;\n}",custom:f=>{const o=CS(f(),".box",["display","justifyContent","alignItems"]);return[[0,o.display==="flex","display: flex"],[0,o.justifyContent==="center","justify-content: center"],[0,o.alignItems==="center","align-items: center"]]}},
+{id:"s7",t:"Flexbox: column with a gap",fn:"flexColumn",h:"flex-direction changes the main axis; gap adds space between items.",c:"function flexColumn(){\n  // return CSS making .box a flex column with 10px gap\n  return ``;\n}",custom:f=>{const o=CS(f(),".box",["display","flexDirection","rowGap"]);return[[0,o.display==="flex","display: flex"],[0,o.flexDirection==="column","flex-direction: column"],[0,o.rowGap==="10px","gap is 10px"]]}},
+{id:"s8",t:"Git: save your work",fn:"saveWork",h:"Two commands: stage everything, then commit with -m and the message in quotes.",c:"function saveWork(message){\n  // return an array of the two git commands that stage all files and commit\n}",custom:f=>[[0,JSON.stringify(f("first"))===JSON.stringify(["git add .","git commit -m \"first\""]),"git add . then git commit -m \"first\""]]},
+{id:"s9",t:"Git: new branch",fn:"newBranch",h:"Modern Git: git switch -c name. The older way: git checkout -b name.",c:"function newBranch(name){\n  // return the command that creates a branch and switches to it\n}",custom:f=>{const r=f("dev");return[[0,r==="git switch -c dev"||r==="git checkout -b dev","creates and switches to the branch"]]}}
+);
+const MP=[
+["m1","Personal bio page","After HTML and CSS basics","Done when: two linked pages, styled, live on GitHub Pages.","Make a folder and run git init|Write index.html with a heading, paragraph, list, link and image|Add about.html and link the two pages together|Create styles.css and style fonts, colours and spacing|Push to GitHub and turn on GitHub Pages"],
+["m2","Tip calculator","After JavaScript basics","Done when: it splits a bill between people with a chosen tip.","Sketch inputs and outputs on paper|Write a calculateTip(bill, percent, people) function|Test it with 3 bills in the console|Add an HTML form and show the result on the page|Handle empty or negative input"],
+["m3","Number guessing game","After JavaScript basics","Done when: higher/lower hints, a guess counter and a replay button.","Pick a random number with Math.random|Compare each guess and respond higher or lower|Count guesses and end the game on a win|Add a Play again button|Commit after each step"],
+["m4","Quote shuffler","After Etch-a-Sketch (DOM)","Done when: a button shows a new quote without repeating the last one.","Store 8 quotes in an array of objects|Show one on the page with DOM methods|Add a New quote button|Avoid showing the same quote twice in a row|Style it and add to your portfolio"],
+["m5","Mini to-do list","After JavaScript: objects and modules","Done when: add, tick and delete tasks that survive a page refresh.","Model a task as an object|Split code into a module for data and one for the DOM|Add, complete and delete tasks|Save to localStorage and reload on start|Write 3 Jest tests for the data module"],
+["m6","Joke fetcher","After Async JavaScript","Done when: it fetches data from a public API with loading and error states.","Pick a free API with no key and read its docs|Use fetch with async/await and log the result|Show the data on the page|Add a loading message and an error message|Add a button to fetch another"]];
+const CARDS=[
+["What does const prevent?","Reassigning the variable. An object or array held in a const can still be changed."],
+["== versus ===","== converts types before comparing. === compares without conversion, so prefer it."],
+["What is a closure?","A function that remembers the variables from the scope where it was created."],
+["What does array.map return?","A new array of the same length, holding each callback result."],
+["git add versus git commit","add stages changes. commit records the staged snapshot in history."],
+["What does flex-direction set?","The main axis of a flex container: row or column."],
+["What is the DOM?","The browser's tree of the page that JavaScript can read and change."],
+["Name the falsy values","false, 0, '', null, undefined, NaN (and 0n)."],
+["Parts of the CSS box model","Content, padding, border, margin (inside to outside)."],
+["What is a callback?","A function passed to another function to be called later."],
+["What does pwd do?","Prints the folder you are currently in."],
+["Why use a git branch?","To work on a change in isolation, then merge it when ready."],
+["Which tag makes a link, and which attribute holds the address?","<a>, with the href attribute."],
+["Why does every <img> need alt text?","It describes the image for screen readers and shows if the image fails to load."],
+["Block versus inline elements","Block elements start on a new line and fill the width (div, p). Inline elements sit within text (span, a)."],
+["Ordered versus unordered list tags","<ol> numbers its <li> items; <ul> shows bullets."],
+["Selector for a class versus an id","A class is .name and can repeat. An id is #name and should be unique."],
+["What is specificity in CSS?","The rule for which style wins when several match: id beats class beats element."],
+["What does box-sizing: border-box change?","Width and height include padding and border, so sizes are easier to predict."],
+["Margin versus padding","Padding is space inside the border. Margin is space outside it."],
+["How do you turn on flexbox?","Set display: flex on the parent (the container)."],
+["justify-content versus align-items","justify-content spaces items along the main axis. align-items aligns them on the cross axis."],
+["What does flex: 1 do?","Lets an item grow to share the free space equally with other flex items."],
+["How do you center something with flexbox?","On the parent: display: flex; justify-content: center; align-items: center."],
+["What does git status show?","Which files are changed, staged or untracked."],
+["Command to create a folder, and to enter it","mkdir name, then cd name."],
+["What does git push do?","Uploads your local commits to the remote repository, e.g. on GitHub."],
+["What does ls do, and what does cd .. do?","ls lists files in the folder. cd .. moves up one folder."],
+["Parts of an HTML element","An opening tag, the content, and a closing tag. Together they are the element."],
+["What does <!DOCTYPE html> do?","It tells the browser to read the page as modern HTML. It goes first in the file."],
+["<head> versus <body>","head holds information about the page (title, links to CSS). body holds what visitors see."],
+["What is a void (empty) element?","An element with no content or closing tag, such as <img> or <br>."],
+["Why use one <h1> per page?","It marks the page's main topic, and headings should follow a sensible order for readers and screen readers."],
+["<em> versus <strong>","em adds emphasis to meaning. strong marks something as important."]];
+const MODES={tests:"Explain this failing test output simply, name the likely cause, and give a hint only. Never write the fix.",plan:"Act as a supportive study coach. Summarise my week in a few lines, name one weak spot and suggest a plan for my next study session.",explain:"Explain the concept simply for a beginner, with one tiny JavaScript example.",hint:"Give a hint or a guiding question only. Never give the full solution.",quiz:"Ask me one short question at a time about the topic and wait for my answer.",review:"Review my code kindly: say what works, then name at most three improvements. Do not rewrite it all."};
+const D=()=>new Date().toISOString().slice(0,10);
+const def={topics:["cli","git","html"],git:null,at:{},mp:{},wk:{},revs:{},done:{},hours:5,log:{},dr:{},cards:{},journal:[],url:"http://localhost:11434",model:"qwen2.5-coder:7b",msgs:[]};
+let S;try{S=Object.assign({},def,JSON.parse(localStorage.getItem("owb")||"{}"))}catch(e){S={...def}}
+const save=()=>{try{localStorage.setItem("owb",JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let tab="roadmap",mode="explain",card=null,show=false;
+const TABS={roadmap:"Roadmap",drills:"Drills",review:"Flashcards",coach:"Coach",projects:"Mini-projects",journal:"Journal",week:"Weekly review",sync:"Git sync",setup:"Setup"};
+function streak(){let d=new Date(),n=0;if(!S.log[D()])d.setDate(d.getDate()-1);for(;;){const k=d.toISOString().slice(0,10);if(S.log[k]>0){n++;d.setDate(d.getDate()-1)}else return n}}
+function week(){let t=0,d=new Date();for(let i=0;i<7;i++){t+=S.log[d.toISOString().slice(0,10)]||0;d.setDate(d.getDate()-1)}return t}
+function go(t){tab=t;render()}
+function render(){
+ document.getElementById("nav").innerHTML=Object.entries(TABS).map(([k,v])=>`<button class="${k==tab?"on":""}" onclick="go('${k}')">${v}</button>`).join("");
+ document.getElementById("main").innerHTML=VIEWS[tab]();
+ if(tab=="coach"){const c=document.getElementById("chat");c.scrollTop=c.scrollHeight}
+}
+const VIEWS={
+roadmap(){
+ const tot=ALL.reduce((a,i)=>a+i[2],0),doneH=ALL.filter(i=>S.done[i[0]]).reduce((a,i)=>a+i[2],0),rem=tot-doneH,pct=Math.round(doneH/tot*100);
+ const fin=new Date(Date.now()+rem/Math.max(S.hours,1)*7*864e5).toLocaleDateString(undefined,{month:"short",year:"numeric"});
+ return `<div class="stats">
+ <div class="panel stat"><b>${pct}%</b><span>of ~${tot} hours done</span><div class="bar"><i style="width:${pct}%"></i></div></div>
+ <div class="panel stat"><b>${week().toFixed(1)} / ${S.hours} h</b><span>this week</span></div>
+ <div class="panel stat"><b>${streak()} days</b><span>current streak</span></div>
+ <div class="panel stat"><b>${rem?fin:"Done"}</b><span>estimated finish</span></div></div>
+ <div class="panel row"><label style="margin:0">Hours per week</label><input type="number" min="1" max="40" value="${S.hours}" style="width:80px" onchange="S.hours=+this.value||5;save();render()">
+ <label style="margin:0">Log today's study</label><input type="number" id="lg" step="0.5" min="0" placeholder="hours" style="width:90px"><button class="btn" onclick="logH()">Add</button>
+ <a href="${PATH}" target="_blank" rel="noopener">Open the Odin path</a></div>
+ ${STAGES.map(s=>`<div class="panel"><h2>${s.n}</h2>${s.items.map(i=>`<label class="item ${i[3]=="p"?"proj":""}" style="margin:0;color:inherit;font-size:1rem"><input type="checkbox" ${S.done[i[0]]?"checked":""} onchange="S.done['${i[0]}']=this.checked;S.at['${i[0]}']=this.checked?D():0;save();render()"><span>${i[3]=="p"?'<span class="tag">Milestone project</span> ':""}${esc(i[1])} <small>about ${i[2]} h${i[4]?" · "+esc(i[4]):""}</small></span></label>`).join("")}</div>`).join("")}
+ <p class="sub">Hours are rough estimates. The real lessons and projects live on The Odin Project; tick them off here as you finish.</p>`},
+drills(){return chips()+`<p class="sub">Write the function, then run the tests. Everything runs in your browser. Turn on JavaScript above once you reach those lessons.</p>`+DRILLS.filter(d=>S.topics.includes(dt(d))).map(d=>`<div class="panel"><h3>${S.dr[d.id]?"✔ ":""}${d.t}</h3>
+ <textarea class="code" id="c_${d.id}" spellcheck="false" onkeydown="tabKey(event)">${esc(S.dr["c_"+d.id]||d.c)}</textarea>
+ <div class="row" style="margin-top:8px"><button class="btn" onclick="runD('${d.id}')">Run tests</button><button class="btn alt" onclick="document.getElementById('h_${d.id}').hidden=false">Hint</button><button class="btn alt" onclick="askCoach('d','${d.id}')">Ask the coach</button></div>
+ <p id="h_${d.id}" hidden class="sub">Hint: ${esc(d.h)}</p><div class="res" id="r_${d.id}"></div></div>`).join("")},
+review(){
+ const now=D(),due=ALL_CARDS().filter(c=>S.topics.includes(c.t)&&(S.cards[c.i]?.due||"0")<=now);
+ if(!card||!due.find(c=>c.i==card.i))card=due[0]||null;
+ const box=[0,0,0,0,0,0];ALL_CARDS().forEach(c=>box[S.cards[c.i]?.box||0]++);
+ if(!card)return chips()+`<div class="panel"><h2>Nothing due</h2><p>You're caught up. Cards come back after 1, 3, 7, then 14 days as you get them right.</p></div>`;
+ return chips()+`<div class="panel"><p class="sub">${due.length} due today</p><div class="card">${esc(show?card.a:card.q)}</div>
+ <div class="row" style="margin-top:12px">${show?`<button class="btn" onclick="grade(1)">I knew it</button><button class="btn alt" onclick="grade(0)">I missed it</button>`:`<button class="btn" onclick="show=true;render()">Show answer</button>`}</div></div>`},
+coach(){return `<div class="panel"><div class="row">${Object.keys(MODES).map(m=>`<button class="btn ${m==mode?"":"alt"}" onclick="mode='${m}';render()">${m[0].toUpperCase()+m.slice(1)}</button>`).join("")}</div>
+ <p class="sub">${esc(MODES[mode])}</p>
+ <div class="chat" id="chat">${S.msgs.length?S.msgs.map(m=>`<div class="msg ${m.role=="user"?"u":"a"}">${esc(m.content)}</div>`).join(""):'<div class="msg a">Hi! Pick a mode, then ask about a lesson, a bug, or paste your code. I run on your own computer via Ollama. See the Setup tab if I am not answering.</div>'}</div>
+ <textarea id="q" rows="3" placeholder="Ask something..."></textarea>
+ <div class="row" style="margin-top:8px"><button class="btn" onclick="ask()">Send</button><button class="btn alt" onclick="S.msgs=[];save();render()">Clear chat</button><span id="st" class="sub"></span></div></div>`},
+journal(){const ps=ALL.filter(i=>i[3]=="p");return `<div class="panel"><h2>New entry</h2><label>Project</label><select id="jp">${ps.map(p=>`<option>${esc(p[1])}</option>`).join("")}</select>
+ <label>Repo or live link</label><input type="text" id="jl" placeholder="https://github.com/you/project">
+ <label>What did you build, and what confused you?</label><textarea id="jt" rows="4"></textarea>
+ <p><button class="btn" onclick="addJ()">Save entry</button></p></div>
+ ${S.journal.length?S.journal.slice().reverse().map(e=>`<div class="panel"><b>${esc(e.p)}</b> <span class="sub">${e.d}</span><p>${esc(e.t)}</p>${/^https?:/.test(e.l)?`<a href="${esc(e.l)}" target="_blank" rel="noopener">${esc(e.l)}</a>`:""}</div>`).join(""):'<p class="sub">Finished a project? Write a few lines here. Over time this becomes your portfolio timeline.</p>'}`},
+projects(){return `<p class="sub">Small builds to do at set points on the path. They're deliberately smaller than Odin's projects, so you finish them.</p>`+MP.map(p=>{const st=p[4].split("|"),n=st.filter((x,i)=>S.mp[p[0]+i]).length;return `<div class="panel"><h3>${esc(p[1])}</h3><p class="sub">${esc(p[2])}. ${esc(p[3])}</p><div class="bar"><i style="width:${n/st.length*100}%"></i></div>`+st.map((x,i)=>`<label class="item" style="margin:0;color:inherit;font-size:1rem"><input type="checkbox" ${S.mp[p[0]+i]?"checked":""} onchange="S.mp['${p[0]+i}']=this.checked;save();render()"><span>${esc(x)}</span></label>`).join("")+`<p><button class="btn alt" onclick="planAsk('${p[0]}')">Ask the coach to help me start</button></p></div>`}).join("")},
+week(){
+ const c=new Date();c.setDate(c.getDate()-6);const cut=c.toISOString().slice(0,10);
+ const it=ALL.filter(i=>S.at[i[0]]&&S.at[i[0]]>=cut),dr=DRILLS.filter(d=>typeof S.dr[d.id]=="string"&&S.dr[d.id]>=cut);
+ let rv=0;for(const k in S.revs)if(k>=cut)rv+=S.revs[k];
+ const cd=S.git?Object.keys(S.git.days).filter(d=>d>=cut).length:0,weak=ALL_CARDS().filter(x=>S.cards[x.i]&&S.cards[x.i].box==0),k=mon();
+ const L=a=>a.length?a.map(x=>esc(x)).join("; "):"nothing yet";
+ window.WS="Hours studied: "+week().toFixed(1)+" of "+S.hours+". Finished: "+it.map(i=>i[1]).join(", ")+". Drills passed: "+dr.map(d=>d.t).join(", ")+". Cards reviewed: "+rv+". Days with Git commits: "+cd+". Weak topics: "+weak.map(x=>x.q).join(", ")+". My reflection: "+(S.wk[k]||"none");
+ const past=Object.entries(S.wk).filter(e=>e[0]!=k&&e[1]).reverse();
+ return `<div class="panel"><h2>Your last 7 days</h2><div class="stats">
+ <div class="stat"><b>${week().toFixed(1)} h</b><span>studied (goal ${S.hours})</span></div><div class="stat"><b>${it.length}</b><span>lessons or projects done</span></div><div class="stat"><b>${dr.length}</b><span>drills passed</span></div><div class="stat"><b>${rv}</b><span>cards reviewed</span></div><div class="stat"><b>${S.git?cd:"–"}</b><span>days with commits</span></div></div>
+ <p><b>Finished:</b> ${L(it.map(i=>i[1]))}</p><p><b>Drills:</b> ${L(dr.map(d=>d.t))}</p><p><b>Worth revisiting:</b> ${L(weak.map(x=>x.q))}</p>
+ <label>Reflection: what went well, what was hard, what's next?</label><textarea rows="4" onchange="S.wk['${k}']=this.value;save()">${esc(S.wk[k]||"")}</textarea>
+ <p><button class="btn" onclick="weekAsk()">Ask the coach for a review</button></p></div>
+ ${past.map(e=>`<div class="panel"><b>Week of ${e[0]}</b><p>${esc(e[1])}</p></div>`).join("")}`},
+sync(){const g=S.git;
+ const imp=`<div class="panel"><h2>Import Git activity</h2><p>In your odin folder run <code>node odin-sync.js</code>, then choose the <code>odin-sync.json</code> it creates. Re-import whenever you want fresh numbers.</p><input type="file" accept=".json" onchange="impG(this)"></div>`;
+ if(!g)return imp;
+ const days=[];for(let i=27;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10))}
+ const n=days.filter(d=>g.days[d]).length;
+ return imp+`<div class="panel"><h2>Last 28 days</h2><p class="sub">You committed on ${n} of 28 days. Synced ${esc(String(g.generated).slice(0,10))}.</p><div style="display:grid;grid-template-columns:repeat(14,1fr);gap:4px">${days.map(d=>`<div title="${d}: ${g.days[d]||0} commits" style="aspect-ratio:1;border-radius:3px;background:${g.days[d]?"var(--acc)":"var(--line)"}"></div>`).join("")}</div></div>`+g.projects.map((p,x)=>{const m=ALL.find(i=>i[0]==p.match);return `<div class="panel"><h3>${esc(p.name)}</h3><p class="sub">${p.commits} commits · ${esc(p.first)} to ${esc(p.last)}${p.remote?" · "+esc(p.remote):""}</p>`+(m?`<p>Looks like: ${esc(m[1])} ${S.done[m[0]]?"(already ticked)":`<button class="btn alt" onclick="S.done['${m[0]}']=true;S.at['${m[0]}']=D();save();render()">Mark done</button>`}</p>`:"")+`<button class="btn alt" onclick="toJ(${x})">Add to journal</button></div>`}).join("")+`<p class="sub">Commits show you've been working, not that a project is finished. Only mark done what you've completed.</p>`},
+setup(){return `<div class="panel"><h2>Run a free coach on your PC</h2>
+ <p>The Coach tab talks to <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a>, which runs open models locally. Nothing leaves your computer.</p>
+ <ol><li>Install Ollama, then in a terminal run: <pre>ollama pull qwen2.5-coder:7b</pre>Use a smaller model (e.g. <code>qwen2.5-coder:3b</code>) if your PC is slow; around 8 GB of RAM suits the 7b model.</li>
+ <li>Let this page talk to Ollama. Close Ollama, then start it with the origin allowed:<pre>Windows (PowerShell):  $env:OLLAMA_ORIGINS="*"; ollama serve
+Mac/Linux:             OLLAMA_ORIGINS="*" ollama serve</pre></li>
+ <li>Set the model name below to match, then try the Coach tab.</li></ol>
+ <label>Ollama address</label><input type="text" value="${esc(S.url)}" onchange="S.url=this.value;save()">
+ <label>Model</label><input type="text" value="${esc(S.model)}" onchange="S.model=this.value;save()"></div>
+ <div class="panel"><h2>Your learning environment</h2><ul>
+ <li>Make a folder <code>odin</code> in VS Code with one subfolder per project, and a Git repo for each.</li>
+ <li>Install the Live Server, Prettier and ESLint extensions.</li>
+ <li>Install Node.js (LTS) for Jest, npm and later Express.</li>
+ <li>Follow Odin's own Installations lesson for Git, the terminal and GitHub; this app can't do those for you.</li></ul>
+ <p>Keep this file in that folder too, and open it in your browser when you study.</p></div>
+ <div class="panel"><h2>Git sync script</h2><p>Reads commit dates from the projects in your odin folder so the Workbench can show your real activity:</p><pre>node odin-sync.js</pre><p>Then import <code>odin-sync.json</code> in the Git sync tab. It only reads dates, counts and repo links.</p></div>
+ <div class="panel"><h2>New project script</h2><p>Creates a folder with <code>index.html</code>, <code>style.css</code>, <code>script.js</code>, a README, a <code>.gitignore</code> and a Git repo with a first commit. Run it inside your odin folder:</p>
+ <pre>node odin-new-project.js recipes
+node odin-new-project.js todo-list --jest</pre>
+ <p>The <code>--jest</code> option also adds a sample test, ready for <code>npm install</code> and <code>npm test</code>.</p></div>
+ <div class="panel"><h2>Test coach script</h2><p>Run your project's tests and get a hint for failures, from the terminal in VS Code. Put <code>odin-test-coach.js</code> in your odin folder (needs Node 18+ and Ollama running):</p>
+ <pre>node odin-test-coach.js my-project
+node odin-test-coach.js my-project --watch
+node odin-test-coach.js my-project --cmd "npm test"</pre>
+ <p>It reruns whenever you save a file with <code>--watch</code>. You can also paste any error into the Coach tab's Tests mode.</p></div>
+ <div class="panel"><h2>Back up your progress</h2><div class="row"><button class="btn" onclick="exp()">Export</button><input type="file" accept=".json" onchange="imp(this)"></div></div>`}
+};
+const TN={cli:"Command line",git:"Git",html:"HTML",css:"CSS",flex:"Flexbox",js:"JavaScript"};
+const TAGS=["js","js","js","js","git","flex","js","js","css","js","cli","git","html","html","html","html","css","css","css","css","flex","flex","flex","flex","git","cli","git","cli","html","html","html","html","html","html"];
+const ALL_CARDS=()=>CARDS.map((c,i)=>({i,q:c[0],a:c[1],t:TAGS[i]}));
+function logH(){const v=parseFloat(document.getElementById("lg").value);if(!(v>0))return;S.log[D()]=(S.log[D()]||0)+v;save();render()}
+function tabKey(e){if(e.key=="Tab"){e.preventDefault();const t=e.target,s=t.selectionStart;t.value=t.value.slice(0,s)+"  "+t.value.slice(t.selectionEnd);t.selectionStart=t.selectionEnd=s+2}}
+function runD(id){
+ const d=DRILLS.find(x=>x.id==id),code=document.getElementById("c_"+id).value,out=document.getElementById("r_"+id);
+ S.dr["c_"+id]=code;let rows=[];
+ try{const f=new Function(code+"\nreturn "+d.fn+";")();
+  if(typeof f!="function")throw new Error(d.fn+" is not a function");
+  rows=d.custom?d.custom(f):d.tests.map(([a,exp])=>{let r;try{r=f(...a)}catch(e){r="Error: "+e.message}return[a,JSON.stringify(r)===JSON.stringify(exp),"got "+JSON.stringify(r)+", expected "+JSON.stringify(exp)]});
+ }catch(e){out.innerHTML=`<div class="f">Error: ${esc(e.message)}</div>`;save();return}
+ const ok=rows.every(r=>r[1]);if(ok)S.dr[id]=S.dr[id]||D();save();
+ out.innerHTML=rows.map(r=>`<div class="${r[1]?"p":"f"}">${r[1]?"pass":"fail"}: ${esc(r[2]||"")}</div>`).join("")+(ok?'<div class="p"><b>All tests pass. Nice work.</b></div>':"");
+}
+function grade(ok){S.revs[D()]=(S.revs[D()]||0)+1;const k=card.i,b=ok?Math.min((S.cards[k]?.box||0)+1,4):0,iv=[0,1,3,7,14][b];const d=new Date();d.setDate(d.getDate()+iv);S.cards[k]={box:b,due:d.toISOString().slice(0,10)};if(!iv){S.cards[k].due=D()}show=false;save();
+ if(!ok){card=null}render()}
+function addJ(){const t=document.getElementById("jt").value.trim();if(!t)return;S.journal.push({p:document.getElementById("jp").value,l:document.getElementById("jl").value.trim(),t,d:D()});save();render()}
+function askCoach(k,id){const d=DRILLS.find(x=>x.id==id);mode="hint";S.msgs.push({role:"user",content:"I'm working on this exercise: "+d.t+". My code:\n"+document.getElementById("c_"+id).value+"\nGive me a hint without the solution."});save();tab="coach";render();send()}
+function ask(){const q=document.getElementById("q").value.trim();if(!q)return;S.msgs.push({role:"user",content:q});save();render();send()}
+async function send(){
+ const st=document.getElementById("st");if(st)st.textContent="Thinking...";
+ const sys="You are a patient coding tutor for a beginner following The Odin Project's Full Stack JavaScript path. Use plain language and short answers. "+MODES[mode];
+ try{const r=await fetch(S.url.replace(/\/$/,"")+"/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:S.model,stream:false,messages:[{role:"system",content:sys},...S.msgs.slice(-10)]})});
+  if(!r.ok)throw new Error("HTTP "+r.status+(r.status==404?" (is the model pulled?)":""));
+  const j=await r.json();S.msgs.push({role:"assistant",content:j.message.content})}
+ catch(e){S.msgs.push({role:"assistant",content:"I couldn't reach Ollama ("+e.message+"). Check the Setup tab: Ollama must be running with OLLAMA_ORIGINS set, and the model name must match."})}
+ save();if(tab=="coach")render()}
+function exp(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"}));a.download="odin-workbench-backup.json";a.click()}
+function imp(el){const f=el.files[0];if(!f)return;f.text().then(t=>{try{S=Object.assign({},def,JSON.parse(t));save();render()}catch(e){alert("That file isn't a valid backup.")}})}
+function impG(el){const f=el.files[0];if(!f)return;f.text().then(t=>{try{const g=JSON.parse(t);if(!g.days||!Array.isArray(g.projects))throw 0;S.git=g;save();render()}catch(e){alert("That doesn't look like an odin-sync.json file.")}})}
+function toJ(i){const p=S.git.projects[i];S.journal.push({p:p.name,l:/^https?:/.test(p.remote)?p.remote:"",t:"Synced from Git: "+p.commits+" commits between "+p.first+" and "+p.last+". Add what you built and learned here.",d:D()});save();tab="journal";render()}
+function chips(){return `<div class="panel"><p class="sub" style="margin-top:0">Topics to practise. Match these to where you are on Odin:</p><div class="row">${Object.keys(TN).map(k=>`<button class="btn ${S.topics.includes(k)?"":"alt"}" aria-pressed="${S.topics.includes(k)}" onclick="toggleT('${k}')">${TN[k]}</button>`).join("")}</div></div>`}
+function toggleT(k){const a=S.topics;S.topics=a.includes(k)?a.filter(x=>x!=k):[...a,k];card=null;show=false;save();render()}
+function dt(d){return d.id[0]=="d"?"js":{s1:"html",s2:"html",s3:"html",s4:"css",s5:"css",s6:"flex",s7:"flex",s8:"git",s9:"git"}[d.id]}
+function mon(){const d=new Date();d.setDate(d.getDate()-(d.getDay()+6)%7);return d.toISOString().slice(0,10)}
+function planAsk(id){const p=MP.find(x=>x[0]==id);mode="hint";S.msgs.push({role:"user",content:"I'm starting the mini-project '"+p[1]+"'. Steps: "+p[4].split("|").join("; ")+". Help me think through the first step. No code."});save();tab="coach";render();send()}
+function weekAsk(){mode="plan";S.msgs.push({role:"user",content:window.WS});save();tab="coach";render();send()}
+render();
+</script></body></html>
