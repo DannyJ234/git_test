@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Odin Workbench",
+      "type": "shell",
+      "command": "open -g -a Ollama; open -a 'Opera GX' odin-workbench.html",
+      "linux": {
+        "command": "explorer.exe \"$(wslpath -w odin-workbench.html)\""
+      },
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "never", "close": true },
+      "runOptions": { "runOn": "folderOpen" },
+      "problemMatcher": []
+    }
+  ]
+}
